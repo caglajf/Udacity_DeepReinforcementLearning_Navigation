@@ -6,57 +6,71 @@
   <h2>Problem Statement</h2>
   
   In this project, an agent should be trained to navigate (and collect bananas!) in a large, square world. A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is provided for collecting a blue banana. Thus, the goal of your agent is to collect as many yellow bananas as possible while avoiding blue bananas.
+  
   ![banana](https://user-images.githubusercontent.com/51778059/155200284-75c8f843-015c-4280-9dee-2814f17ba340.gif)
   
    <h2>Solving the Environment</h2>
 
   The state space has 37 dimensions and contains the agent's velocity, along with ray-based perception of objects around the agent's forward direction. Given this information, the agent has to learn how to best select actions. Four discrete actions are available, corresponding to:
 
-0 - move forward.
-1 - move backward.
-2 - turn left.
-3 - turn right.
+0 - move forward.<br />
+1 - move backward.<br />
+2 - turn left.<br />
+3 - turn right.<br />
+  
 The task is episodic, and in order to solve the environment, your agent must get an average score of +13 over 100 consecutive episodes.
   
   <h2>Learning Algorithm</h2>
   
-  In order to train multiple agents, I implemented Multi Agent Deep Deterministic Policy Gradient [(MADDPG) algorithm](https://arxiv.org/pdf/1706.02275.pdf) as it requires the training of two separate agents, and the agents need to collaborate under certain situations (like don’t let the ball hit the ground) and compete under other situations (like gather as many points as possible). A MADDPG is composed of multiple DDPG agents.
+  In this project, [deep Q-Learning algorithm](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) was implemented to train the agent. The main idea is to to train deep neural networks to develop a novel artificial agent, termed a deep Q-network (DQN), that can learn successful policies directly from high-dimensional sensory inputs using end-to-end reinforcement learning. In DQN implementation, a single architecture can successfully learn control policies in a range of different environments with only very minimal prior knowledge. In Figure 1, an illustration of DQN Architecture was provided. 
   
-  In MADDPG, each agent’s critic is trained using the observations and actions from all the agents, whereas each agent’s actor is trained using just its own observations. This allows the agents to be effectively trained without requiring other agents’ observations during inference (because the actor is only dependent on its own observations).You can find the pseudocode of the MADDPG algorithm below. 
+ <img width="685" alt="dqn" src="https://user-images.githubusercontent.com/51778059/155212577-b3f188b6-a9e9-4351-897c-2b2506aa5d43.png">
+  Figure 1. Illustration of DQN Architecture
+
+  The DQN algorithm was developed by DeepMind in 2015. It was able to solve a wide range of Atari games (some to superhuman level) by combining reinforcement learning and deep neural networks at scale. The algorithm was developed by enhancing a classic RL algorithm called Q-Learning with deep neural networks and a technique called experience replay.
+
+   <h4>Q-learning with deep neural networks</h4>
+ Q-Learning is based on the notion of a Q-function. The Q-function (a.k.a the state-action value function) of a policy measures the expected return or discounted sum of rewards obtained from state  by taking action first and following policy thereafter. We define the optimal Q-function as the maximum return that can be obtained starting from observation, taking action and following the optimal policy thereafter. The optimal Q-function obeys the following Bellman optimality equation:
   
-  <img width="427" alt="image" src="https://user-images.githubusercontent.com/51778059/154129979-fe786303-9596-4cec-b54e-1e7ee11937cb.png">
+  <img width="241" alt="Capture" src="https://user-images.githubusercontent.com/51778059/155213847-12e60f0c-0b87-4134-b28f-eaeaad3b4091.PNG">
+
+  For most problems, it is impractical to represent the Q-function as a table containing values for each combination. Instead, we can train a function approximator, such as a neural network with parameters to estimate the Q-values.
   
- 
+  ![DQN alg](https://user-images.githubusercontent.com/51778059/155216061-8f8c5313-89d0-4ab1-bf7a-7bdb5afd7e51.png)
+  
+  <h4>Experience replay</h4>
+  To avoid computing the full expectation in the DQN loss, we can minimize it using stochastic gradient descent. If the loss is computed using just the last transition , this reduces to standard Q-Learning.
+  
   <h4>Hyperparameters</h4>
- Replay buffer size: 10000<br />
- Batch size: 256<br />
+  
+  In this project, the deep Q-learning algorithm code given in Udacity ND program was modified. The selected hyperparameters were given below. 
+  
+ Replay buffer size: 100000<br />
+ Batch size: 64<br />
  Gamma (discount factor): 0.99<br />
  Tau (soft update of target parameters): 0.001<br />
- Learning rate for actor: 0.0001<br />
- Learning rate for critic: 0.001<br />
- Weight decay: 0<br />
- Noise decay: 1<br />
+ Learning rate: 0.0005<br />
+ How often to update the network: 4
 
    <h4>Model</h4>
-- Actor<br />
-  The Neural Network has two hidden layers with 256 and 256 neurons, respectively. The activation function used is ReLU for the input and first layer and tanh for the output The output layer has 4 values which corresponds to the dimension of each action.<br />
- - Critic<br />
-  The Neural Network has two hidden layers with 256 and 256 neurons, respectively. The activation function used is ReLU for the input and first layer and none for the output. The output layer has just one value which corresponds to the assesment made by the critic of the action chosen by the actor.<br />
-    
+The following architecture was used for training the agent:
+  
+ ```
+ Input nodes (37) -> Fully Connected Layer (256 nodes, Relu activation) -> Fully Connected Layer (128 nodes, Relu activation) -> Output nodes (4)
+ ```
+  
   <h2>Results</h2>
   
-  After implementing MADDPG method, the score evolution can be seen below:
+   In order to solve the environment, the agent must get an average score of +13 over 100 consecutive episodes. After implementing DQN method, the environment succesfully solved in 429 episodes with average score of 13.12.
   
-  <img width="356" alt="Screenshot 2022-02-19 211415" src="https://user-images.githubusercontent.com/51778059/154813625-ae2c893d-427f-40d1-9e37-81d1fee8792f.png">
-  
-  ![plot](https://user-images.githubusercontent.com/51778059/154815382-80d3e9d3-3f96-415c-8cfb-e74f64e5e1a4.png)
+  ![image](https://user-images.githubusercontent.com/51778059/155216270-f2589bf0-aa42-4c46-970b-60b74735ca11.png)
 
- The environment has been successfully solved in 2311 episodes.
+  ![indir](https://user-images.githubusercontent.com/51778059/155216792-b7c2267d-8b28-48e8-812a-5af1cdcba8c5.png)
 
  <h2>Ideas for Future Work</h2>
   
-   I implemented MADDPG method and solved the environment. In order to improve the performance of the agents, some other methods and improvements can also be tried. <br />
+   I implemented DQN method and solved the environment succesfully. In order to improve the performance of the agents, some other methods and improvements can also be tried. <br />
 - More effort can be spent for hyperparameter optimization to improve results.<br />
-- Different algorithms can be implemented such as [A2C](https://medium.com/deeplearningmadeeasy/advantage-actor-critic-a2c-implementation-944e98616b), [PPO](https://openai.com/blog/openai-baselines-ppo/) or [D4PG](https://arxiv.org/pdf/1804.08617.pdf) to compare the performance of training. <br />
+- Different algorithms can be implemented such as [duelling DQN](https://arxiv.org/abs/1511.06581), [double DQN](https://arxiv.org/abs/1509.06461v3), [distibutional DQN](https://arxiv.org/abs/1707.06887) or [A3C](https://arxiv.org/abs/1602.01783) to compare the performance of training. <br />
 - Prioritized experience replay can also be tried to see if it improves the training time.<br />
 
